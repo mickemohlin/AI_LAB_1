@@ -325,7 +325,9 @@ namespace Reversi
             {     
                 return Evaluation(board);
             }
+
             int bestScore;
+
             if (isMaxPlayer) bestScore = int.MinValue;
             else bestScore = int.MaxValue;
             List<Tuple<int, int>> validMoves = GetValidMoves(board, tile);
@@ -401,7 +403,9 @@ namespace Reversi
                         var fSharpMiniMax = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth-1, int.MinValue, int.MaxValue, OtherTile(tile), true);
                         Debug.WriteLine(fSharpMiniMax);
 
+                        // TODO: Call F# version of MiniMaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
+
                         if (nodeScore > bestScore)
                         {
                             bestScore = nodeScore;
@@ -412,6 +416,7 @@ namespace Reversi
                     {
                         // TODO: Call F# version of MiniMaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);
+
                         if (nodeScore < bestScore)
                         {
                             bestScore = nodeScore;
