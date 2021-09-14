@@ -67,6 +67,7 @@ namespace Reversi
 
         void GenerateBoardButtons()
         {
+
             for (int i = 0; i < 64; i++)
             {
                 Button cellButton = new Button();

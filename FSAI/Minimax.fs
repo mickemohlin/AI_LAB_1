@@ -1,9 +1,10 @@
 ﻿namespace FSAI
 
 module Minimax =
-    let printHello message = 
-        $"Hello, world {message}"
+    let minimaxAlphaBeta board depth a b tile isMaxPlayer =
+        $"Test Minimax: {board}, {depth}, {a}, {b}, {tile}, {isMaxPlayer}"
 
-    type Class1() = 
-        member this.X = "F#"
+    
+    
+    
     

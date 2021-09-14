@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+using Microsoft.FSharp.Core;
 
 namespace Reversi
 {
@@ -278,10 +280,10 @@ namespace Reversi
             // Heuristical evaluation function that quantifies the attractiveness of a board,
             // relative to the black player.
             int evaluation = 0;
-            int blackScore = GetScore(board, Black);
-            int whiteScore = GetScore(board, White);
-            int blackMobility = GetValidMoves(board, Black).Count;
-            int whiteMobility = GetValidMoves(board, White).Count;
+            int blackScore = 0; //GetScore(board, Black);
+            int whiteScore = 0; //GetScore(board, White);
+            int blackMobility = 0; //GetValidMoves(board, Black).Count;
+            int whiteMobility = 0; //GetValidMoves(board, White).Count;
             if (blackScore == 0)
             {
                 return -200000;
@@ -320,7 +322,7 @@ namespace Reversi
             // The heart of our AI. Minimax algorithm with alpha-beta pruning to speed up computation.
             // Higher search depths = greater difficulty.
             if (depth == 0 || GetWinner(board) != Empty)
-            {
+            {     
                 return Evaluation(board);
             }
             int bestScore;
@@ -389,6 +391,16 @@ namespace Reversi
                     int nodeScore;
                     if (tile == Black)
                     {
+                        // Convert supportfunctions
+                        var evalFunc = FuncConvert.ToFSharpFunc<byte[,], int>(Evaluation);
+                        var getValidMovesFunc = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
+                        var makeMoveFunc = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
+                        var getWinner = FuncConvert.ToFSharpFunc<Tuple<byte[,]>, byte>(t => GetWinner(t.Item1));
+
+                        // Test: Call FSharps function 
+                        var fSharpMiniMax = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth-1, int.MinValue, int.MaxValue, OtherTile(tile), true);
+                        Debug.WriteLine(fSharpMiniMax);
+
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
                         if (nodeScore > bestScore)
                         {
@@ -398,6 +410,7 @@ namespace Reversi
                     }
                     else
                     {
+                        // TODO: Call F# version of MiniMaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);
                         if (nodeScore < bestScore)
                         {
