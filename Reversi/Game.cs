@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using Microsoft.FSharp.Core;
+using System.Windows.Documents;
 
 namespace Reversi
 {
@@ -11,9 +12,11 @@ namespace Reversi
         public const byte Empty = 0, White = 1, Black = 2, Valid = 3, Tie = 4;
         // static string[] tileChars = new string[4] { "  ", "\u25CF ", "\u25CB ", "* " };
         static string[] tileChars = new string[4] { "  ", "1 ", "2 ", "* " };
+
         static int[][] dirs = { new int[2] {-1, 1},  new int[2] {0, 1},  new int[2] { 1, 1},
                             new int[2] {-1, 0},                      new int[2] { 1, 0},
                             new int[2] {-1, -1}, new int[2] {0, -1}, new int[2] { 1, -1} };
+
         static Random rng = new Random();
 
         public static int ToIndex1D(int x, int y)
@@ -329,8 +332,11 @@ namespace Reversi
             int bestScore;
 
             if (isMaxPlayer) bestScore = int.MinValue;
+
             else bestScore = int.MaxValue;
+
             List<Tuple<int, int>> validMoves = GetValidMoves(board, tile);
+
             if (validMoves.Count > 0)
             {
                 foreach (Tuple<int, int> move in validMoves)
@@ -395,16 +401,25 @@ namespace Reversi
                     {
                         // Convert supportfunctions
                         var evalFunc = FuncConvert.ToFSharpFunc<byte[,], int>(Evaluation);
-                        var getValidMovesFunc = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
-                        var makeMoveFunc = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
-                        var getWinner = FuncConvert.ToFSharpFunc<Tuple<byte[,]>, byte>(t => GetWinner(t.Item1));
 
-                        // Test: Call FSharps function 
-                        var fSharpMiniMax = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth-1, int.MinValue, int.MaxValue, OtherTile(tile), true);
-                        Debug.WriteLine(fSharpMiniMax);
+                        var wrappedValidMoves = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
+                        var getValidMovesFunc = FuncConvert.FuncFromTupled(wrappedValidMoves);
 
-                        // TODO: Call F# version of MiniMaxAlphaBeta
+                        var wrappedMakeMove = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
+                        var makeMoveFunc = FuncConvert.FuncFromTupled(wrappedMakeMove);
+
+                        var getWinnerFunc = FuncConvert.ToFSharpFunc<byte[,], byte>(GetWinner);
+
+                        var otherTileFunc = FuncConvert.ToFSharpFunc<byte, byte>(OtherTile);
+
+                        var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
+                            evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
+
+
+
+                        // C# MinimaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
+                        Debug.WriteLine($"C# MiniaxAlphaBeta: {nodeScore}");
 
                         if (nodeScore > bestScore)
                         {

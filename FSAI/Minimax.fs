@@ -1,24 +1,28 @@
 ﻿namespace FSAI
 
-// TODO: public static int Evaluation(byte[,] board) - Mikael
-
-// TODO: public static List<Tuple<int, int>> GetValidMoves(byte[,] board, byte tile) - Mikael
-
-// TODO: public static void MakeMove(byte[,] board, Tuple<int, int> move, byte tile) - Filip
-
-// TODO: public static byte GetWinner(byte[,] board) - Filip
-
-// TODO: public static int MinimaxAlphaBeta(byte[,] board, int depth, int a, int b, byte tile, bool isMaxPlayer)
-
 module Minimax =
-    let minimaxAlphaBeta board depth a b tile isMaxPlayer =
-        $"Test Minimax: {board}, {depth}, {a}, {b}, {tile}, {isMaxPlayer}"
+    let Empty = byte 0
+    let White = byte 1
+    let Black = byte 2
+    let Valid = byte 3
+    let Tie = byte 4
 
-    type Game() =
-        member this.property = 5
-        
-        member this.testfunction =
-            $"Number: {this.property}"
+    let rec minimaxAlphaBeta (boardF: byte[,], depthF: int, minValueF: int, maxValueF: int, tileF: int, isMaxPlayerF: bool, evaluation, getValidMoves, makeMove, getWinner, otherTile) =
+        if ((depthF = 0) || (getWinner(boardF) <> Empty)) then
+            let evalRes = evaluation boardF
+            let evalResInt:int = evalRes
+            evalResInt
+        else 
+            let mutable bestScore = 0
+
+            if isMaxPlayerF then
+                bestScore <- minValueF
+            else
+                bestScore <- maxValueF
+
+            bestScore
+
+
 
     
     
