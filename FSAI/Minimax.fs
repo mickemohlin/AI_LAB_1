@@ -1,4 +1,6 @@
 ﻿namespace FSAI
+open System
+open Microsoft.FSharp.Collections
 
 module Minimax =
     let Empty = byte 0
@@ -22,6 +24,25 @@ module Minimax =
 
             bestScore
 
+
+    let evaluate (board: byte[,], getValidMoves) : int =
+
+        let evaluation = 0
+        let validMovesBlack: ResizeArray<Tuple<int, int>> = getValidMoves board Black
+        let validMovesWhite: ResizeArray<Tuple<int, int>> = getValidMoves board Black
+        let blackMobility = validMovesBlack.Count
+        let whiteMobility = validMovesWhite.Count
+        let blackScore = 0; //GetScore(board, Black);
+        let whiteScore = 0; //GetScore(board, White);
+
+        0
+
+
+
+
+
+
+        
 
 
     
