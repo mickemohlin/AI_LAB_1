@@ -335,7 +335,7 @@ namespace Reversi
             // The heart of our AI. Minimax algorithm with alpha-beta pruning to speed up computation.
             // Higher search depths = greater difficulty.
             if (depth == 0 || GetWinner(board) != Empty)
-            {     
+            {
                 return Evaluation(board);
             }
 
@@ -353,6 +353,7 @@ namespace Reversi
                 {
                     byte[,] childBoard = board.Clone() as byte[,];
                     MakeMove(childBoard, move, tile);
+
                     int nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, a, b, OtherTile(tile), !isMaxPlayer);
                     if (isMaxPlayer)
                     {
@@ -409,13 +410,9 @@ namespace Reversi
                     int nodeScore;
                     if (tile == Black)
                     {
-                        
-
                         // F# MinimaxAlphaBeta
                         var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
                             evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
-
-                        var fsharpEvaluate = FSAI.Minimax.evaluate(childBoard, getValidMovesFunc, getScoreFunc);
 
                         // C# MinimaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
@@ -425,8 +422,6 @@ namespace Reversi
                         Debug.WriteLine($"F# MiniaxAlphaBeta: {fSharpMinimaxAlphaBeta}");
                         Debug.WriteLine($"C# MiniaxAlphaBeta: {nodeScore}");
                         Debug.WriteLine("---------------------------------------");
-
-                        
 
                         if (nodeScore > bestScore)
                         {
