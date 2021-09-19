@@ -1,7 +1,6 @@
 ﻿namespace FSAI
 
 open System
-open Microsoft.FSharp.Collections
 
 module Minimax =
     let Empty = byte 0
@@ -12,48 +11,49 @@ module Minimax =
 
     // F# Evaluation
     let evaluate (board: byte[,], getValidMoves, getScore, countCorners) : int =
-        let evaluation: int = 0
+        let mutable evaluation: int = 0
    
-            // gets the current valid moves for Black and White
-            let validMovesBlack: ResizeArray<Tuple<int, int>> = getValidMoves board Black
-            let validMovesWhite: ResizeArray<Tuple<int, int>> = getValidMoves board White
-            let blackMobility: int = validMovesBlack.Count;
-            let whiteMobility: int = validMovesWhite.Count;
+        // gets the current valid moves for Black and White
+        let validMovesBlack: ResizeArray<Tuple<int, int>> = getValidMoves board Black
+        let validMovesWhite: ResizeArray<Tuple<int, int>> = getValidMoves board White
+        let blackMobility: int = validMovesBlack.Count;
+        let whiteMobility: int = validMovesWhite.Count;
 
-            // gets the current score of Black and White 
-            let blackScore: int = getScore board Black;
-            let whiteScore: int = getScore board White;
+        // gets the current score of Black and White 
+        let blackScore: int = getScore board Black;
+        let whiteScore: int = getScore board White;
       
-            // If leaf node leads to a black score of 0, chance of winning terrible
-            if blackScore = 0 then
-                -200000
-            // else high chance of winning
-            else if whiteScore = 0 then
-                200000
+        // If leaf node leads to a black score of 0, chance of winning terrible
+        if blackScore = 0 then
+            -200000
+        // else high chance of winning
+        else if whiteScore = 0 then
+            200000
 
-            // If game is over ( max score = 64 or no more moves can be made )
-            else if blackScore + whiteScore = 64 || blackMobility + whiteMobility = 0 then
+        // If game is over ( max score = 64 or no more moves can be made )
+        else if blackScore + whiteScore = 64 || blackMobility + whiteMobility = 0 then
                 
-                if blackScore < whiteScore then
-                    -100000 - whiteScore + blackScore
-                else if blackScore > whiteScore then
-                    100000 + blackScore - whiteScore
-                else 
-                    0
-            else
-            // returns evaluation depending on the score
-                let evaluation =  blackScore - whiteScore
+            if blackScore < whiteScore then
+                -100000 - whiteScore + blackScore
+            else if blackScore > whiteScore then
+                100000 + blackScore - whiteScore
+            else 
+                0
+        else
+        // returns evaluation depending on the score
+            evaluation <- evaluation + (blackScore - whiteScore)
    
-                if blackScore + whiteScore > 55 then
-                    blackScore - whiteScore
+            if blackScore + whiteScore > 55 then
+                blackScore - whiteScore
     
-                else
-                    // if black has fewer moves than white -> negative evaluation, worse evaluation
-                    let evaluation2 = evaluation + (blackMobility - whiteMobility) * 10
-                    let evaluation3 = evaluation2 + ((countCorners board Black) - (countCorners board White)) * 100
+            else
+                // if black has fewer moves than white -> negative evaluation, worse evaluation
+                evaluation <- evaluation + ((blackMobility - whiteMobility) * 10)
+                evaluation <- evaluation + (((countCorners board Black) - (countCorners board White)) * 100)
    
-                    evaluation3
+                evaluation
            
+
     // F# MinimaxAlphaBeta
     let rec minimaxAlphaBeta (boardF: byte[,], depthF: int, alpha: int, beta: int, tileF: byte, isMaxPlayerF: bool, getValidMoves, makeMove, getWinner, otherTile, getScore, countCorners) =
         if ((depthF = 0) || (getWinner(boardF) <> Empty)) then // If leaf node or game over --> Return value of leaf node.
