@@ -24,7 +24,8 @@ namespace Reversi
         static FSharpFunc<byte[,], FSharpFunc<Tuple<int, int>, FSharpFunc<byte, Unit>>> makeMoveFunc = FuncConvert.FuncFromTupled(wrappedMakeMove);
         static FSharpFunc<byte[,], byte> getWinnerFunc = FuncConvert.ToFSharpFunc<byte[,], byte>(GetWinner);
         static FSharpFunc<byte, byte> otherTileFunc = FuncConvert.ToFSharpFunc<byte, byte>(OtherTile);
-
+        static FSharpFunc<Tuple<byte[,], byte>, int> wrappedGetScore = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, int>(t => GetScore(t.Item1, t.Item2));
+        static FSharpFunc<byte[,], FSharpFunc<byte, int>> getScoreFunc = FuncConvert.FuncFromTupled(wrappedGetScore);
 
         static Random rng = new Random();
 
@@ -408,6 +409,8 @@ namespace Reversi
                     int nodeScore;
                     if (tile == Black)
                     {
+                        
+
                         // F# MinimaxAlphaBeta
                         var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
                             evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
