@@ -409,14 +409,15 @@ namespace Reversi
                     byte[,] childBoard = board.Clone() as byte[,];
                     MakeMove(childBoard, move, tile);
                     int nodeScore;
+                    
                     if (tile == Black)
                     {
+                        // C# MinimaxAlphaBeta
+                        //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
+
                         // F# MinimaxAlphaBeta
                         nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
                             getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
-
-                        // C# MinimaxAlphaBeta
-                        //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
 
                         if (nodeScore > bestScore)
                         {
@@ -426,12 +427,12 @@ namespace Reversi
                     }
                     else
                     {
+                        // C# MinimaxAlphaBeta
+                        //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);
+
                         // F# MinimaxAlphaBeta
                         nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true,
                             getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
-
-                        // C# MinimaxAlphaBeta
-                        //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);                 
 
                         if (nodeScore < bestScore)
                         {
