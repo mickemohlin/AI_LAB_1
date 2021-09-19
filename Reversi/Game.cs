@@ -17,7 +17,6 @@ namespace Reversi
                             new int[2] {-1, 0},                      new int[2] { 1, 0},
                             new int[2] {-1, -1}, new int[2] {0, -1}, new int[2] { 1, -1} };
 
-        static FSharpFunc<byte[,], int> evalFunc = FuncConvert.ToFSharpFunc<byte[,], int>(Evaluation);
         static FSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>> wrappedValidMoves = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
         static FSharpFunc<byte[,], FSharpFunc<byte, List<Tuple<int, int>>>> getValidMovesFunc = FuncConvert.FuncFromTupled(wrappedValidMoves);
         static FSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>, Unit> wrappedMakeMove = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
@@ -26,6 +25,8 @@ namespace Reversi
         static FSharpFunc<byte, byte> otherTileFunc = FuncConvert.ToFSharpFunc<byte, byte>(OtherTile);
         static FSharpFunc<Tuple<byte[,], byte>, int> wrappedGetScore = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, int>(t => GetScore(t.Item1, t.Item2));
         static FSharpFunc<byte[,], FSharpFunc<byte, int>> getScoreFunc = FuncConvert.FuncFromTupled(wrappedGetScore);
+        static FSharpFunc<Tuple<byte[,], byte>, int> wrappedCountCorners = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, int>(t => CountCorners(t.Item1, t.Item2));
+        static FSharpFunc<byte[,], FSharpFunc<byte, int>> getCountCornersFunc = FuncConvert.FuncFromTupled(wrappedCountCorners);
 
         static Random rng = new Random();
 
@@ -411,17 +412,11 @@ namespace Reversi
                     if (tile == Black)
                     {
                         // F# MinimaxAlphaBeta
-                        var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
-                            evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
+                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
+                            getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
 
                         // C# MinimaxAlphaBeta
-                        nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
-
-                         // Compare output
-                        Debug.WriteLine("---------------------------------------");
-                        Debug.WriteLine($"F# MiniaxAlphaBeta: {fSharpMinimaxAlphaBeta}");
-                        Debug.WriteLine($"C# MiniaxAlphaBeta: {nodeScore}");
-                        Debug.WriteLine("---------------------------------------");
+                        //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
 
                         if (nodeScore > bestScore)
                         {
@@ -431,8 +426,12 @@ namespace Reversi
                     }
                     else
                     {
-                        // TODO: Call F# version of MiniMaxAlphaBeta
-                        nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);
+                        // F# MinimaxAlphaBeta
+                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true,
+                            getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
+
+                        // C# MinimaxAlphaBeta
+                        //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);                 
 
                         if (nodeScore < bestScore)
                         {

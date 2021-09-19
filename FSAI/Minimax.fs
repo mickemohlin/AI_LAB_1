@@ -10,69 +10,13 @@ module Minimax =
     let Valid = byte 3
     let Tie = byte 4
 
-    let rec minimaxAlphaBeta (boardF: byte[,], depthF: int, minValueF: int, maxValueF: int, tileF: byte, isMaxPlayerF: bool, evaluation, getValidMoves, makeMove, getWinner, otherTile) =
-        if ((depthF = 0) || (getWinner(boardF) <> Empty)) then
-            let evalRes = evaluation boardF 
-            evalRes
-        else 
-            let mutable bestScore = 0
-
-            if isMaxPlayerF then
-                bestScore <- minValueF
-            else
-                bestScore <- maxValueF
-
-            let validMoves: ResizeArray<Tuple<int, int>> = getValidMoves boardF tileF
-           
-            let isOverZeroMoves = (0 < validMoves.Count)
-
-            match isOverZeroMoves with
-            | true ->
-                let mutable i: int = 0
-
-                while i < validMoves.Count do
-                    let childBoard: byte[,] = Array2D.copy boardF
-
-                    let move = validMoves.[i]
-                    makeMove childBoard move tileF
-
-                    let nodeScore = minimaxAlphaBeta(childBoard, depthF-1, minValueF, maxValueF, otherTile(tileF), (not isMaxPlayerF), evaluation, getValidMoves, makeMove, getWinner, otherTile)
-
-                    match isMaxPlayerF with
-                    | true ->
-                        bestScore <- Math.Max(bestScore, nodeScore)
-                        minValueF = Math.Max(bestScore, maxValueF)
-                    | false ->
-                        bestScore <- Math.Min(bestScore, nodeScore)
-                        maxValueF = Math.Min(bestScore, maxValueF)
-                    |> ignore
-                       
-                    match maxValueF <= minValueF with
-                    | true ->
-                        i <- validMoves.Count // Break out of for loop
-                    | false ->
-                        i <- i + 1
-                    |> ignore
-
-                bestScore
-                
-            | false ->
-                minimaxAlphaBeta(boardF, depthF, minValueF, maxValueF, tileF, (not isMaxPlayerF), evaluation, getValidMoves, makeMove, getWinner, otherTile)
-            |> ignore
-                
-            bestScore
-
-
-
+    // F# Evaluation
     let evaluate (board: byte[,], getValidMoves, getScore, countCorners) : int =
    
             let evaluation: int = 0
    
             let validMovesBlack: ResizeArray<Tuple<int, int>> = getValidMoves board Black
             let validMovesWhite: ResizeArray<Tuple<int, int>> = getValidMoves board White
-   
-            //let scoreBlack: int = getScore board Black
-            //let scoreWhite: int = getScore board White
    
             let blackMobility: int = validMovesBlack.Count;
             let whiteMobility: int = validMovesWhite.Count;
@@ -104,7 +48,58 @@ module Minimax =
    
                     evaluation4
            
+    // F# MinimaxAlphaBeta
+    let rec minimaxAlphaBeta (boardF: byte[,], depthF: int, minValueF: int, maxValueF: int, tileF: byte, isMaxPlayerF: bool, getValidMoves, makeMove, getWinner, otherTile, getScore, countCorners) =
+        if ((depthF = 0) || (getWinner(boardF) <> Empty)) then
+            let evalRes = evaluate (boardF, getValidMoves, getScore, countCorners)
+            evalRes
+        else 
+            let mutable bestScore = 0
+
+            if isMaxPlayerF then
+                bestScore <- minValueF
+            else
+                bestScore <- maxValueF
+
+            let validMoves: ResizeArray<Tuple<int, int>> = getValidMoves boardF tileF
            
+            let isOverZeroMoves = (0 < validMoves.Count)
+
+            match isOverZeroMoves with
+            | true ->
+                let mutable i: int = 0
+
+                while i < validMoves.Count do
+                    let childBoard: byte[,] = Array2D.copy boardF
+
+                    let move = validMoves.[i]
+                    makeMove childBoard move tileF
+
+                    let nodeScore = minimaxAlphaBeta(childBoard, depthF-1, minValueF, maxValueF, otherTile(tileF), (not isMaxPlayerF), getValidMoves, makeMove, getWinner, otherTile, getScore, countCorners)
+
+                    match isMaxPlayerF with
+                    | true ->
+                        bestScore <- Math.Max(bestScore, nodeScore)
+                        minValueF = Math.Max(bestScore, maxValueF)
+                    | false ->
+                        bestScore <- Math.Min(bestScore, nodeScore)
+                        maxValueF = Math.Min(bestScore, maxValueF)
+                    |> ignore
+                       
+                    match maxValueF <= minValueF with
+                    | true ->
+                        i <- validMoves.Count // Break out of for loop
+                    | false ->
+                        i <- i + 1
+                    |> ignore
+
+                bestScore
+                
+            | false ->
+                minimaxAlphaBeta(boardF, depthF, minValueF, maxValueF, tileF, (not isMaxPlayerF), getValidMoves, makeMove, getWinner, otherTile, getScore, countCorners)
+            |> ignore
+                
+            bestScore
    
 
         
