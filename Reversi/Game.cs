@@ -413,7 +413,7 @@ namespace Reversi
                     {
                         // F# MinimaxAlphaBeta
                         nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
-                            getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
+                            getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);     
 
                         // C# MinimaxAlphaBeta
                         //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
@@ -427,8 +427,8 @@ namespace Reversi
                     else
                     {
                         // F# MinimaxAlphaBeta
-                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true,
-                            getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
+                         nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true,
+                           getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);              
 
                         // C# MinimaxAlphaBeta
                         //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);                 
