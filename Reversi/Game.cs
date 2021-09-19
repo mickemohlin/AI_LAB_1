@@ -17,6 +17,15 @@ namespace Reversi
                             new int[2] {-1, 0},                      new int[2] { 1, 0},
                             new int[2] {-1, -1}, new int[2] {0, -1}, new int[2] { 1, -1} };
 
+        static FSharpFunc<byte[,], int> evalFunc = FuncConvert.ToFSharpFunc<byte[,], int>(Evaluation);
+        static FSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>> wrappedValidMoves = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
+        static FSharpFunc<byte[,], FSharpFunc<byte, List<Tuple<int, int>>>> getValidMovesFunc = FuncConvert.FuncFromTupled(wrappedValidMoves);
+        static FSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>, Unit> wrappedMakeMove = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
+        static FSharpFunc<byte[,], FSharpFunc<Tuple<int, int>, FSharpFunc<byte, Unit>>> makeMoveFunc = FuncConvert.FuncFromTupled(wrappedMakeMove);
+        static FSharpFunc<byte[,], byte> getWinnerFunc = FuncConvert.ToFSharpFunc<byte[,], byte>(GetWinner);
+        static FSharpFunc<byte, byte> otherTileFunc = FuncConvert.ToFSharpFunc<byte, byte>(OtherTile);
+
+
         static Random rng = new Random();
 
         public static int ToIndex1D(int x, int y)
@@ -283,10 +292,10 @@ namespace Reversi
             // Heuristical evaluation function that quantifies the attractiveness of a board,
             // relative to the black player.
             int evaluation = 0;
-            int blackScore = 0; //GetScore(board, Black);
-            int whiteScore = 0; //GetScore(board, White);
-            int blackMobility = 0; //GetValidMoves(board, Black).Count;
-            int whiteMobility = 0; //GetValidMoves(board, White).Count;
+            int blackScore = GetScore(board, Black);
+            int whiteScore = GetScore(board, White);
+            int blackMobility = GetValidMoves(board, Black).Count;
+            int whiteMobility = GetValidMoves(board, White).Count;
             if (blackScore == 0)
             {
                 return -200000;
@@ -399,23 +408,7 @@ namespace Reversi
                     int nodeScore;
                     if (tile == Black)
                     {
-                        // Convert supportfunctions
-                        var evalFunc = FuncConvert.ToFSharpFunc<byte[,], int>(Evaluation);
-
-                        var wrappedValidMoves = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
-                        var getValidMovesFunc = FuncConvert.FuncFromTupled(wrappedValidMoves);
-
-                        var wrappedGetScore = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, int>(t =>GetScore(t.Item1, t.Item2));
-                        var getScoreFunc = FuncConvert.FuncFromTupled(wrappedGetScore);
-
-
-                        var wrappedMakeMove = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
-                        var makeMoveFunc = FuncConvert.FuncFromTupled(wrappedMakeMove);
-
-                        var getWinnerFunc = FuncConvert.ToFSharpFunc<byte[,], byte>(GetWinner);
-
-                        var otherTileFunc = FuncConvert.ToFSharpFunc<byte, byte>(OtherTile);
-
+                        // F# MinimaxAlphaBeta
                         var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
                             evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
 
@@ -423,7 +416,14 @@ namespace Reversi
 
                         // C# MinimaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
+
+                         // Compare output
+                        Debug.WriteLine("---------------------------------------");
+                        Debug.WriteLine($"F# MiniaxAlphaBeta: {fSharpMinimaxAlphaBeta}");
                         Debug.WriteLine($"C# MiniaxAlphaBeta: {nodeScore}");
+                        Debug.WriteLine("---------------------------------------");
+
+                        
 
                         if (nodeScore > bestScore)
                         {
