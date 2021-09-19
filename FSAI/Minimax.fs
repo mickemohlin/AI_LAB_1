@@ -46,7 +46,7 @@ module Minimax =
                 let evaluation4 = evaluation3 + ((countCorners board Black) - (countCorners board White)) * 100
    
                 evaluation4
-       
+                
        
     // F# MinimaxAlphaBeta
     let rec minimaxAlphaBeta (boardF: byte[,], depthF: int, alpha: int, beta: int, tileF: byte, isMaxPlayerF: bool, getValidMoves, makeMove, getWinner, otherTile, getScore, countCorners) =
@@ -100,7 +100,7 @@ module Minimax =
                 minimaxAlphaBeta(boardF, depthF, alpha, beta, tileF, (not isMaxPlayerF), getValidMoves, makeMove, getWinner, otherTile, getScore, countCorners)
             |> ignore
                 
-            bestScore
+            bestScore     
    
 
         
