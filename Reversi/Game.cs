@@ -412,6 +412,8 @@ namespace Reversi
                         var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
                             evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
 
+                        var fsharpEvaluate = FSAI.Minimax.evaluate(childBoard, getValidMovesFunc, getScoreFunc);
+
                         // C# MinimaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
 
