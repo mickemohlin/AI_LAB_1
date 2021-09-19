@@ -1,10 +1,7 @@
 ﻿namespace FSAI
-open System
-open Microsoft.FSharp.Collections
 
 open System
 open Microsoft.FSharp.Collections
-
 
 module Minimax =
     let Empty = byte 0
@@ -34,7 +31,7 @@ module Minimax =
                 let mutable i: int = 0
 
                 while i < validMoves.Count do
-                    let childBoard: byte[,] = boardF // TODO: Shallow copy?
+                    let childBoard: byte[,] = Array2D.copy boardF
 
                     let move = validMoves.[i]
                     makeMove childBoard move tileF
@@ -64,6 +61,7 @@ module Minimax =
             |> ignore
                 
             bestScore
+
 
 
     let evaluate (board: byte[,], getValidMoves, getScore) : int =
