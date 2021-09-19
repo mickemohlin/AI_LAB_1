@@ -64,26 +64,48 @@ module Minimax =
 
 
 
-    let evaluate (board: byte[,], getValidMoves, getScore) : int =
-
-        let mutable evaluation = 0
-        let validMovesBlack: ResizeArray<Tuple<int, int>> = getValidMoves board Black
-        let validMovesWhite: ResizeArray<Tuple<int, int>> = getValidMoves board White
-
-        let scoreBlack: int = getScore board Black
-        let scoreWhite: int = getScore board White
-
-        let blackMobility = validMovesBlack.Count;
-        let whiteMobility = validMovesWhite.Count;
-        let blackScore = scoreBlack;
-        let whiteScore = scoreWhite;
-
-        printf "Black score: %i White score: %i" blackScore whiteScore
-
-        if blackScore = 0 then
-            -200000
+    let evaluate (board: byte[,], getValidMoves, getScore, countCorners) : int =
+   
+            let evaluation: int = 0
+   
+            let validMovesBlack: ResizeArray<Tuple<int, int>> = getValidMoves board Black
+            let validMovesWhite: ResizeArray<Tuple<int, int>> = getValidMoves board White
+   
+            //let scoreBlack: int = getScore board Black
+            //let scoreWhite: int = getScore board White
+   
+            let blackMobility: int = validMovesBlack.Count;
+            let whiteMobility: int = validMovesWhite.Count;
+            let blackScore: int = getScore board Black;
+            let whiteScore: int = getScore board White;
+   
+            printf "Black score: %i White score: %i" blackScore whiteScore
+   
+            if blackScore = 0 then
+                -200000
+            else if whiteScore = 0 then
+                200000
+            else if blackScore + whiteScore = 64 || blackMobility + whiteMobility = 0 then
+                if blackScore < whiteScore then
+                    -100000 - whiteScore + blackScore
+                else if blackScore > whiteScore then
+                    100000 + blackScore - whiteScore
+                else 
+                    0
             else
-            200000
+                let evaluation2 = evaluation + blackScore - whiteScore
+   
+                if blackScore + whiteScore > 55 then
+                    blackScore - whiteScore
+   
+                else
+                    let evaluation3 = evaluation2 + (blackMobility - whiteMobility) * 10
+                    let evaluation4 = evaluation3 + ((countCorners board Black) - (countCorners board White)) * 100
+   
+                    evaluation4
+           
+           
+   
 
         
 
