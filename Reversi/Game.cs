@@ -403,8 +403,11 @@ namespace Reversi
                         var evalFunc = FuncConvert.ToFSharpFunc<byte[,], int>(Evaluation);
 
                         var wrappedValidMoves = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
-
                         var getValidMovesFunc = FuncConvert.FuncFromTupled(wrappedValidMoves);
+
+                        var wrappedGetScore = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, int>(t =>GetScore(t.Item1, t.Item2));
+                        var getScoreFunc = FuncConvert.FuncFromTupled(wrappedGetScore);
+
 
                         var wrappedMakeMove = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
                         var makeMoveFunc = FuncConvert.FuncFromTupled(wrappedMakeMove);
@@ -416,7 +419,7 @@ namespace Reversi
                         var fSharpMinimaxAlphaBeta = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
                             evalFunc, getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc);
 
-                        var fsharpEvaluate = FSAI.Minimax.evaluate(childBoard, getValidMovesFunc);
+                        var fsharpEvaluate = FSAI.Minimax.evaluate(childBoard, getValidMovesFunc, getScoreFunc);
 
                         // C# MinimaxAlphaBeta
                         nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
