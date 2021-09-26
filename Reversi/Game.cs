@@ -15,8 +15,9 @@ namespace Reversi
 
         static int[][] dirs = { new int[2] {-1, 1},  new int[2] {0, 1},  new int[2] { 1, 1},
                             new int[2] {-1, 0},                      new int[2] { 1, 0},
-                            new int[2] {-1, -1}, new int[2] {0, -1}, new int[2] { 1, -1} };
+                            new int[2] {-1, -1}, new int[2] {0, -1}, new int[2] { 1, -1} };       
 
+        // Wrap C# functions
         static FSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>> wrappedValidMoves = FuncConvert.ToFSharpFunc<Tuple<byte[,], byte>, List<Tuple<int, int>>>(t => GetValidMoves(t.Item1, t.Item2));
         static FSharpFunc<byte[,], FSharpFunc<byte, List<Tuple<int, int>>>> getValidMovesFunc = FuncConvert.FuncFromTupled(wrappedValidMoves);
         static FSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>, Unit> wrappedMakeMove = FuncConvert.ToFSharpFunc<Tuple<byte[,], Tuple<int, int>, byte>>(t => MakeMove(t.Item1, t.Item2, t.Item3));
@@ -328,6 +329,7 @@ namespace Reversi
             }
             evaluation += (blackMobility - whiteMobility) * 10;
             evaluation += (CountCorners(board, Black) - CountCorners(board, White)) * 100;
+
             return evaluation;
         }
 
@@ -336,7 +338,7 @@ namespace Reversi
             // The heart of our AI. Minimax algorithm with alpha-beta pruning to speed up computation.
             // Higher search depths = greater difficulty.
             if (depth == 0 || GetWinner(board) != Empty)
-            {
+            {   
                 return Evaluation(board);
             }
 
@@ -376,6 +378,7 @@ namespace Reversi
             {
                 return MinimaxAlphaBeta(board, depth, a, b, OtherTile(tile), !isMaxPlayer);
             }
+
             return bestScore;
         }
 
@@ -409,15 +412,20 @@ namespace Reversi
                     byte[,] childBoard = board.Clone() as byte[,];
                     MakeMove(childBoard, move, tile);
                     int nodeScore;
+
+                    var a = int.MinValue;
+                    var b = int.MaxValue;
+                       
                     
                     if (tile == Black)
                     {
+ 
                         // C# MinimaxAlphaBeta
                         //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false);
 
                         // F# MinimaxAlphaBeta
-                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), false,
-                            getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
+                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, ref a, ref b, OtherTile(tile), false,
+                          getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
 
                         if (nodeScore > bestScore)
                         {
@@ -427,11 +435,13 @@ namespace Reversi
                     }
                     else
                     {
+                       
+
                         // C# MinimaxAlphaBeta
                         //nodeScore = MinimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true);
 
                         // F# MinimaxAlphaBeta
-                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, int.MinValue, int.MaxValue, OtherTile(tile), true,
+                        nodeScore = FSAI.Minimax.minimaxAlphaBeta(childBoard, depth - 1, ref a, ref b, OtherTile(tile), true,
                             getValidMovesFunc, makeMoveFunc, getWinnerFunc, otherTileFunc, getScoreFunc, getCountCornersFunc);
 
                         if (nodeScore < bestScore)
